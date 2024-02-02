@@ -1,6 +1,6 @@
 #!/bin/bash
 
-deepspeed llava/train/train_mem.py \
+deepspeed --master_port 29547 --num_gpus=8 llava/train/train_mem.py \
     --deepspeed ./scripts/zero2.json \
     --model_name_or_path /mnt/petrelfs/share_data/vicuna/vicuna-13b-v1.5/ \
     --version plain \

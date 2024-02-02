@@ -1,6 +1,8 @@
 #!/bin/bash
 
-deepspeed llava/train/train_mem.py \
+set -x
+export MASTER_PORT=29501
+deepspeed --master_addr $(scontrol show hostname $SLURM_NODELIST | head -n1) --master_port ${MASTER_PORT} --num_gpus=8 llava/train/train_mem.py \
     --deepspeed ./scripts/zero3.json \
     --model_name_or_path /mnt/petrelfs/share_data/vicuna/vicuna-13b-v1.5/ \
     --version v1 \
