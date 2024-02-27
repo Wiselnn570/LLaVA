@@ -68,6 +68,10 @@ class LlavaLlamaForCausalLM(LlamaForCausalLM, LlavaMetaForCausalLM):
         images: Optional[torch.FloatTensor] = None,
         image_sizes: Optional[List[List[int]]] = None,
         return_dict: Optional[bool] = None,
+        # anchor
+        anchor: Optional[bool] = None,
+        key_position: Optional[dict] = None,
+        scale_factor: Optional[float] = 2.0,
     ) -> Union[Tuple, CausalLMOutputWithPast]:
 
         if inputs_embeds is None:
@@ -98,7 +102,11 @@ class LlavaLlamaForCausalLM(LlamaForCausalLM, LlavaMetaForCausalLM):
             use_cache=use_cache,
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
-            return_dict=return_dict
+            return_dict=return_dict,
+            # anchor
+            anchor=anchor,
+            key_position=key_position,
+            scale_factor=scale_factor,
         )
 
     @torch.no_grad()

@@ -14,7 +14,7 @@ from torch.utils.data import Dataset, DataLoader
 
 from PIL import Image
 import math
-
+LLaVA_IMAGE_TOKEN_SIZE = 576
 
 def split_list(lst, n):
     """Split a list into n (roughly) equal-sized chunks"""
@@ -111,7 +111,12 @@ def eval_model(args):
                 top_p=args.top_p,
                 num_beams=args.num_beams,
                 max_new_tokens=args.max_new_tokens,
-                use_cache=True)
+                use_cache=True,
+                # anchor
+                anchor=True,
+                key_position=torch.where(input_ids[0] == IMAGE_TOKEN_INDEX)[0][0].cpu().item()+LLaVA_IMAGE_TOKEN_SIZE - 1,
+                scale_factor=2.0,
+                )
 
         outputs = tokenizer.batch_decode(output_ids, skip_special_tokens=True)[0].strip()
 

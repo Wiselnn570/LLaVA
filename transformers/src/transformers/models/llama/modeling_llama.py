@@ -356,6 +356,10 @@ class LlamaAttention(nn.Module):
         past_key_value: Optional[Cache] = None,
         output_attentions: bool = False,
         use_cache: bool = False,
+        # anchor
+        anchor: Optional[bool] = None,
+        key_position: Optional[dict] = None,
+        scale_factor: Optional[float] = 2.0,
         **kwargs,
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor], Optional[Tuple[torch.Tensor]]]:
         if "padding_mask" in kwargs:
@@ -424,6 +428,14 @@ class LlamaAttention(nn.Module):
                     f"Attention mask should be of size {(bsz, 1, q_len, kv_seq_len)}, but is {attention_mask.size()}"
                 )
             attn_weights = attn_weights + attention_mask
+
+        # augment anchor attention
+        if anchor:
+            pos = key_position
+            if attn_weights.size(dim=-2) != 1:
+                attn_weights[..., pos: , pos] *= scale_factor
+            else:
+                attn_weights[..., pos] *= scale_factor
 
         # upcast attention to fp32
         attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
@@ -767,6 +779,10 @@ class LlamaDecoderLayer(nn.Module):
         past_key_value: Optional[Tuple[torch.Tensor]] = None,
         output_attentions: Optional[bool] = False,
         use_cache: Optional[bool] = False,
+        # anchor
+        anchor: Optional[bool] = None,
+        key_position: Optional[dict] = None,
+        scale_factor: Optional[float] = 2.0,
         **kwargs,
     ) -> Tuple[torch.FloatTensor, Optional[Tuple[torch.FloatTensor, torch.FloatTensor]]]:
         """
@@ -800,6 +816,10 @@ class LlamaDecoderLayer(nn.Module):
             past_key_value=past_key_value,
             output_attentions=output_attentions,
             use_cache=use_cache,
+            # anchor
+            anchor=anchor,
+            key_position=key_position,
+            scale_factor=scale_factor,
             **kwargs,
         )
         hidden_states = residual + hidden_states
@@ -981,6 +1001,10 @@ class LlamaModel(LlamaPreTrainedModel):
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
         return_dict: Optional[bool] = None,
+        # anchor
+        anchor: Optional[bool] = None,
+        key_position: Optional[dict] = None,
+        scale_factor: Optional[float] = 2.0,
     ) -> Union[Tuple, BaseModelOutputWithPast]:
         output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
         output_hidden_states = (
@@ -1072,6 +1096,10 @@ class LlamaModel(LlamaPreTrainedModel):
                     past_key_value=past_key_values,
                     output_attentions=output_attentions,
                     use_cache=use_cache,
+                    # anchor
+                    anchor=anchor,
+                    key_position=key_position,
+                    scale_factor=scale_factor,
                 )
 
             hidden_states = layer_outputs[0]
@@ -1145,6 +1173,10 @@ class LlamaForCausalLM(LlamaPreTrainedModel):
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
         return_dict: Optional[bool] = None,
+        # anchor
+        anchor: Optional[bool] = None,
+        key_position: Optional[dict] = None,
+        scale_factor: Optional[float] = 2.0,
     ) -> Union[Tuple, CausalLMOutputWithPast]:
         r"""
         Args:
@@ -1188,6 +1220,10 @@ class LlamaForCausalLM(LlamaPreTrainedModel):
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
             return_dict=return_dict,
+            # anchor
+            anchor=anchor,
+            key_position=key_position,
+            scale_factor=scale_factor,
         )
 
         hidden_states = outputs[0]
