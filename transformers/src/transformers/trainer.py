@@ -35,6 +35,8 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Union
 
+import pdb
+
 
 # Integrations must be imported before ML frameworks:
 # isort: off
@@ -2755,7 +2757,7 @@ class Trainer:
             labels = inputs.pop("labels")
         else:
             labels = None
-        outputs = model(**inputs)
+        outputs = model(**inputs, anchor=True)
         # Save past state if it exists
         # TODO: this needs to be fixed and made cleaner later.
         if self.args.past_index >= 0:

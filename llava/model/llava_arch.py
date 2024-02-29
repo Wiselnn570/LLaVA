@@ -149,7 +149,7 @@ class LlavaMetaForCausalLM(ABC):
         vision_tower = self.get_vision_tower()
         if vision_tower is None or images is None or input_ids.shape[1] == 1:
             return input_ids, position_ids, attention_mask, past_key_values, None, labels
-
+        # print(f"input_ids{input_ids}, position_ids{position_ids}, attention_mask{attention_mask}, past_key_values{past_key_values}, labels{labels}")
         if type(images) is list or images.ndim == 5:
             if type(images) is list:
                 images = [x.unsqueeze(0) if x.ndim == 3 else x for x in images]
@@ -320,7 +320,7 @@ class LlavaMetaForCausalLM(ABC):
 
         if _position_ids is None:
             position_ids = None
-
+        # print(f"changed:\nposition_ids{position_ids}, past_key_values:{past_key_values}, attention_mask{attention_mask}, new_input_embeds{new_input_embeds}, new_labels{new_labels}")
         return None, position_ids, attention_mask, past_key_values, new_input_embeds, new_labels
 
     def initialize_vision_tokenizer(self, model_args, tokenizer):

@@ -428,7 +428,6 @@ class LlamaAttention(nn.Module):
                     f"Attention mask should be of size {(bsz, 1, q_len, kv_seq_len)}, but is {attention_mask.size()}"
                 )
             attn_weights = attn_weights + attention_mask
-
         # augment anchor attention
         if anchor:
             pos = key_position
@@ -1087,6 +1086,10 @@ class LlamaModel(LlamaPreTrainedModel):
                     past_key_values,
                     output_attentions,
                     use_cache,
+                    # anchor
+                    anchor,
+                    key_position,
+                    scale_factor,
                 )
             else:
                 layer_outputs = decoder_layer(
